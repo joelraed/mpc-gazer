@@ -26,7 +26,7 @@ const char* labels[N]={"Size","PreDelay","Feedback","Damping","Highpass","Shimme
 struct Plugin {
  AEffect effect{};
  mpcgazer::GazerDSP dsp;
- float v[N]={.55f,.14f,.766f,.35f,.15f,.45f,.433f,.353f,1.f,.085f,.2f,.9f,0.f,.45f,.545f};
+ float v[N]={.75f,.14f,.713f,.45f,.15f,.25f,.433f,.235f,1.f,.085f,.15f,.9f,0.f,.35f,.545f};
  Plugin():dsp(48000.f){update();}
  void update(){
    mpcgazer::Parameters p;
