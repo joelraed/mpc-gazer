@@ -6,8 +6,12 @@ mkdir -p dist
 docker run --rm --platform linux/arm/v7 \
   -v "$PWD:/work" -w /work arm32v7/gcc:11-bullseye \
   bash -ec '
-    apt-get update
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends cmake file binutils
+    # The old Bullseye security mirror can advertise removed .deb revisions.
+    # Build dependencies come from the stable Bullseye main repository instead.
+    sed -i "/debian-security/d" /etc/apt/sources.list
+    rm -rf /var/lib/apt/lists/*
+    apt-get update -o Acquire::Retries=3
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -o Acquire::Retries=3 cmake file binutils
     cmake -S . -B build-mpc -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_CXX_FLAGS="-O2 -fvisibility=hidden -ffunction-sections -fdata-sections" \
       -DCMAKE_SHARED_LINKER_FLAGS="-Wl,--gc-sections"
