@@ -1,0 +1,22 @@
+{
+  "name": "MPC Gazer",
+  "vendor": "MPC Gazer",
+  "uid": "MGzr",
+  "version": 400,
+  "so": "MPCGazer.so",
+  "effect": true,
+  "params": "params.json",
+  "build": {
+    "root": "..",
+    "sources": [
+      "src/GazerDSP.cpp",
+      "src/MPCAdapter.cpp"
+    ],
+    "cflags": [
+      "-Isrc"
+    ],
+    "libs": [
+      "-lm"
+    ]
+  }
+}
