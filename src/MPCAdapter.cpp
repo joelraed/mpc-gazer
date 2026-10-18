@@ -62,4 +62,4 @@ void process(void* o,const int16_t* in,int16_t* out,int frames) {
 }
 const mpc_engine_t engine={create,destroy,midi,set,get,render,process,nullptr};
 }
-extern "C" const mpc_engine_t* mpc_engine(void){return &engine;}
+const mpc_engine_t* mpc_engine(void){return &engine;}
