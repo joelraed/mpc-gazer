@@ -1,0 +1,32 @@
+name: Build desktop VST2
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  windows-vst2:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -S . -B build -A x64 -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build --config Release --target MPCGazer
+      - name: Upload Windows VST2 DLL
+        uses: actions/upload-artifact@v4
+        with:
+          name: MPCGazer-Windows-x64-VST2
+          path: build/Release/MPCGazer.dll
+          if-no-files-found: error
+  linux-vst2:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+      - run: cmake --build build --config Release -j 2
+      - run: ctest --test-dir build --output-on-failure
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MPCGazer-Linux-x64-VST2
+          path: build/MPCGazer.so
+          if-no-files-found: error
