@@ -1,0 +1,33 @@
+name: Build MPC Gazer experimental ARM VST2
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  build-arm:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install ARM cross compiler
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++-arm-linux-gnueabihf cmake file binutils-arm-linux-gnueabihf
+      - name: Configure
+        run: |
+          cmake -S . -B build-arm -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_SYSTEM_NAME=Linux \
+            -DCMAKE_SYSTEM_PROCESSOR=arm \
+            -DCMAKE_C_COMPILER=arm-linux-gnueabihf-gcc \
+            -DCMAKE_CXX_COMPILER=arm-linux-gnueabihf-g++
+      - name: Compile
+        run: cmake --build build-arm --target MPCGazer --parallel 2
+      - name: Verify ARM object
+        run: |
+          file build-arm/MPCGazer.so
+          arm-linux-gnueabihf-readelf -h build-arm/MPCGazer.so | grep -E 'Class:|Machine:|Flags:'
+          arm-linux-gnueabihf-readelf -Ws build-arm/MPCGazer.so | grep VSTPluginMain
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MPCGazer-experimental-armhf
+          path: build-arm/MPCGazer.so
+          if-no-files-found: error
