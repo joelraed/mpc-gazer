@@ -1,0 +1,43 @@
+name: Build macOS VST2
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  mac-vst2:
+    runs-on: macos-15-arm64
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure and compile for Apple Silicon (macOS Ventura compatible)
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=13.0
+          cmake --build build --target MPCGazer --parallel 2
+      - name: Package VST2 bundle
+        run: |
+          mkdir -p dist/MPCGazer.vst/Contents/MacOS
+          cp build/MPCGazer.dylib dist/MPCGazer.vst/Contents/MacOS/MPCGazer
+          cat > dist/MPCGazer.vst/Contents/Info.plist <<'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>CFBundleDevelopmentRegion</key><string>English</string>
+            <key>CFBundleExecutable</key><string>MPCGazer</string>
+            <key>CFBundleIdentifier</key><string>audio.mpcgazer.vst2</string>
+            <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
+            <key>CFBundleName</key><string>MPC Gazer</string>
+            <key>CFBundlePackageType</key><string>BNDL</string>
+            <key>CFBundleSignature</key><string>????</string>
+            <key>CFBundleShortVersionString</key><string>0.2.0</string>
+            <key>CFBundleVersion</key><string>2</string>
+          </dict></plist>
+          PLIST
+          file dist/MPCGazer.vst/Contents/MacOS/MPCGazer
+          lipo -archs dist/MPCGazer.vst/Contents/MacOS/MPCGazer
+          nm -gU dist/MPCGazer.vst/Contents/MacOS/MPCGazer | grep VSTPluginMain
+      - name: Upload macOS VST2
+        uses: actions/upload-artifact@v4
+        with:
+          name: MPCGazer-macOS-AppleSilicon-VST2
+          path: dist/MPCGazer.vst
+          include-hidden-files: true
+          if-no-files-found: error
