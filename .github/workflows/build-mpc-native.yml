@@ -1,0 +1,35 @@
+name: Build MPC Gazer native MPC skin and wrapper
+on:
+  push:
+    branches: [feature/mpc-one-standalone-v0.4]
+  workflow_dispatch:
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: mpc-gazer
+      - uses: docker/setup-qemu-action@v3
+      - name: Check out Open MPC framework
+        uses: actions/checkout@v4
+        with:
+          repository: sd88me/mpc-vst-plugins
+          path: mpc-vst-plugins
+      - name: Generate skin, Q-Links, ARM VST2 and registration metadata
+        run: |
+          cd mpc-vst-plugins
+          bash tools/build_port.sh ../mpc-gazer/vst/vst.json armv7
+      - name: Inspect package
+        run: |
+          find mpc-gazer/vst/build -maxdepth 5 -type f | head -60
+          file mpc-gazer/vst/build/MPCGazer.so
+          readelf -Ws mpc-gazer/vst/build/MPCGazer.so | grep VSTPluginMain
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MPCGazer-MPC-OS3-skin-and-wrapper-EXPERIMENTAL
+          path: |
+            mpc-gazer/vst/build/MPCGazer.so
+            mpc-gazer/vst/build/skin/
+            mpc-gazer/vst/build/pluginlist-entry.xml
+          if-no-files-found: error
