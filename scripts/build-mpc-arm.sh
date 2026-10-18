@@ -6,6 +6,8 @@ mkdir -p dist
 docker run --rm --platform linux/arm/v7 \
   -v "$PWD:/work" -w /work arm32v7/gcc:11-bullseye \
   bash -ec '
+    apt-get update
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends cmake file binutils
     cmake -S . -B build-mpc -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_CXX_FLAGS="-O2 -fvisibility=hidden -ffunction-sections -fdata-sections" \
       -DCMAKE_SHARED_LINKER_FLAGS="-Wl,--gc-sections"
