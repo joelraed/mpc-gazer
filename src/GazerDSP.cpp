@@ -15,7 +15,16 @@ float tap(const std::vector<float>& r, std::size_t pos, float delay) {
   int i = (int)idx;
   int j = (i + 1) % n;
   float f = idx - i;
-  return r[(std::size_t)i] * (1.f-f) + r[(std::size_t)j]*f;
+  // Four-point Hermite interpolation reduces grain edge aliasing.
+  const float y0=r[(std::size_t)((i+n-1)%n)];
+  const float y1=r[(std::size_t)i];
+  const float y2=r[(std::size_t)j];
+  const float y3=r[(std::size_t)((j+1)%n)];
+  const float c0=y1;
+  const float c1=.5f*(y2-y0);
+  const float c2=y0-2.5f*y1+2.f*y2-.5f*y3;
+  const float c3=1.5f*(y1-y2)+.5f*(y3-y0);
+  return ((c3*f+c2)*f+c1)*f+c0;
 }
 }
 GazerDSP::GazerDSP(float sampleRate) { prepare(sampleRate); }
@@ -25,6 +34,11 @@ void GazerDSP::prepare(float sampleRate) {
   const std::size_t maxDelay = (std::size_t)(sr_*2.5f)+64;
   for (int n=0;n<13;++n) for (int ch=0;ch<2;++ch) {
     auto& d=lines_[n][ch]; d.ring.assign(maxDelay,0.f); d.pos=0; d.low=d.hpLow=0;
+  }
+  for(int stage=0;stage<2;++stage) for(int ch=0;ch<2;++ch) {
+    auto& d=diffusers_[stage][ch];
+    d.ring.assign((std::size_t)(sr_*(stage==0?0.0053f:0.0117f))+1,0.f);
+    d.pos=0;
   }
   for (int ch=0;ch<2;++ch) {
     pitch_[ch].ring.assign((std::size_t)(sr_*.5f)+64,0.f);
@@ -40,6 +54,9 @@ void GazerDSP::reset() {
   }
   for(auto& p:pitch_) { std::fill(p.ring.begin(),p.ring.end(),0.f); p.write=0; p.phase=0.f; }
   for (auto& p:predelay_) std::fill(p.begin(), p.end(), 0.f);
+  for(auto& stage:diffusers_) for(auto& d:stage) {
+    std::fill(d.ring.begin(),d.ring.end(),0.f);d.pos=0;
+  }
   prePos_=0; shiftFeedback_[0]=shiftFeedback_[1]=0;
   organLow_[0]=organLow_[1]=0; attackEnv_=0; wetSmooth_=p_.wet; lfo_=0;
 }
@@ -70,7 +87,7 @@ float GazerDSP::pitchProcess(Pitch& p, float input, float semitones, float grain
   float a=grain(p.phase);
   float b=grain(std::fmod(p.phase+.5f,1.f));
   p.write=(p.write+1)%p.ring.size();
-  return a+b;
+  return (a+b)*1.41421356f;
 }
 void GazerDSP::process(const float* inL,const float* inR,float* outL,float* outR,std::size_t frames) {
   if (!inL||!inR||!outL||!outR) throw std::invalid_argument("null channel");
@@ -86,10 +103,24 @@ void GazerDSP::process(const float* inL,const float* inR,float* outL,float* outR
       float tonic=delayed;
       organLow_[ch] += .014f * (delayed-organLow_[ch]);
       tonic = (1.f-p_.organize)*tonic+p_.organize*std::tanh(organLow_[ch]*3.f)*.6f;
-      float shifted=pitchProcess(pitch_[ch],tonic + shiftFeedback_[ch]*p_.grainFeedback,
+      // Pitch-shift a filtered ambience, rather than the dry attack. The natural
+      // reverberation is the dominant layer; shimmer enters underneath it.
+      float shifted=pitchProcess(pitch_[ch], shiftFeedback_[ch]*(.6f+.4f*p_.grainFeedback),
                                   p_.pitchSemitones,p_.grainMs);
-      float pitchFeed=clampf(shifted,-2.f,2.f)*p_.shimmer*attackEnv_;
+      float pitchFeed=clampf(shifted,-1.5f,1.5f)*p_.shimmer*attackEnv_;
+      // Two cascaded all-pass diffusers smear attacks before the reverb tank.
+      float diffuse=tonic;
+      for(int stage=0;stage<2;++stage) {
+        auto& ap=diffusers_[stage][ch];
+        const float delayed=ap.ring[ap.pos];
+        const float g=.67f;
+        const float output=delayed-g*diffuse;
+        ap.ring[ap.pos]=diffuse+g*output;
+        ap.pos=(ap.pos+1)%ap.ring.size();
+        diffuse=output;
+      }
       float sum=0.f;
+      float cross=shiftFeedback_[1-ch]*.06f;
       for(int d=0;d<p_.lines;++d) {
         auto& line=lines_[d][ch];
         float ms=(float)primeTimes[d] * (.5f + p_.size*2.4f);
@@ -101,12 +132,12 @@ void GazerDSP::process(const float* inL,const float* inR,float* outL,float* outR
         float hpCoefficient=.0002f+p_.highpass*.018f;
         line.hpLow += hpCoefficient*(line.low-line.hpLow);
         float shaped=line.low-line.hpLow;
-        float feed = tonic*.24f + pitchFeed*.20f + shaped*p_.feedback;
+        float feed = diffuse*.19f + pitchFeed*.075f + cross + shaped*p_.feedback;
         line.ring[line.pos]=std::tanh(feed);
         line.pos=(line.pos+1)%line.ring.size();
         sum += current;
       }
-      wet[ch]=std::tanh(sum/(std::sqrt((float)p_.lines)*1.5f));
+      wet[ch]=std::tanh(sum/(std::sqrt((float)p_.lines)*1.65f));
       shiftFeedback_[ch]=clampf(wet[ch],-1.f,1.f);
     }
     prePos_=(prePos_+1)%predelay_[0].size();

@@ -44,6 +44,8 @@ private:
   Parameters p_{};
   Delay lines_[13][2];
   Pitch pitch_[2];
+  struct Diffuser { std::vector<float> ring; std::size_t pos=0; };
+  Diffuser diffusers_[2][2];
   std::vector<float> predelay_[2];
   std::size_t prePos_ = 0;
   float shiftFeedback_[2] = {0.f, 0.f};
