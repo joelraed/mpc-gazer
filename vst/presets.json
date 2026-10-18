@@ -1,0 +1,84 @@
+{
+  "presets": [
+    {
+      "name": "Celestial Glow",
+      "values": {
+        "size": 0.75,
+        "predelay": 35,
+        "feedback": 0.67,
+        "damping": 0.45,
+        "highpass": 0.15,
+        "shimmer": 0.25,
+        "grain": 95,
+        "grain_fb": 0.2,
+        "pitch": 12,
+        "attack": 180,
+        "modulate": 0.15,
+        "width": 0.9,
+        "organize": 0,
+        "wet": 0.35,
+        "lines": 8
+      }
+    },
+    {
+      "name": "Soft Halo",
+      "values": {
+        "size": 0.6,
+        "predelay": 35,
+        "feedback": 0.51,
+        "damping": 0.45,
+        "highpass": 0.15,
+        "shimmer": 0.14,
+        "grain": 95,
+        "grain_fb": 0.2,
+        "pitch": 12,
+        "attack": 180,
+        "modulate": 0.15,
+        "width": 0.9,
+        "organize": 0,
+        "wet": 0.3,
+        "lines": 8
+      }
+    },
+    {
+      "name": "Crystal Air",
+      "values": {
+        "size": 0.75,
+        "predelay": 35,
+        "feedback": 0.7,
+        "damping": 0.2,
+        "highpass": 0.15,
+        "shimmer": 0.47,
+        "grain": 95,
+        "grain_fb": 0.2,
+        "pitch": 12,
+        "attack": 180,
+        "modulate": 0.15,
+        "width": 0.9,
+        "organize": 0,
+        "wet": 0.43,
+        "lines": 8
+      }
+    },
+    {
+      "name": "Dark Drift",
+      "values": {
+        "size": 0.75,
+        "predelay": 35,
+        "feedback": 0.78,
+        "damping": 0.75,
+        "highpass": 0.15,
+        "shimmer": 0.18,
+        "grain": 95,
+        "grain_fb": 0.2,
+        "pitch": 12,
+        "attack": 180,
+        "modulate": 0.15,
+        "width": 0.9,
+        "organize": 0,
+        "wet": 0.5,
+        "lines": 8
+      }
+    }
+  ]
+}
