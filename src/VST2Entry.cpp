@@ -1,6 +1,7 @@
 #include "GazerDSP.h"
 #include <cstdint>
 #include <cstring>
+#include <cstdio>
 #include <cmath>
 #include <algorithm>
 #include <new>
