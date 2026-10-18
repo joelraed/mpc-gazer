@@ -12,3 +12,7 @@ add_executable(mpcgazer_smoke tests/smoke.cpp)
 target_link_libraries(mpcgazer_smoke PRIVATE mpcgazer_dsp)
 enable_testing()
 add_test(NAME smoke COMMAND mpcgazer_smoke)
+
+add_executable(mpcgazer_celestial_glow tests/celestial_glow.cpp)
+target_link_libraries(mpcgazer_celestial_glow PRIVATE mpcgazer_dsp)
+add_test(NAME celestial_glow COMMAND mpcgazer_celestial_glow)
