@@ -18,5 +18,6 @@
     "libs": [
       "-lm"
     ]
-  }
+  },
+  "presets": "presets.json"
 }
