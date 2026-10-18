@@ -1,0 +1,107 @@
+[
+  {
+    "key": "size",
+    "name": "Size",
+    "min": 0,
+    "max": 1,
+    "default": 0.75
+  },
+  {
+    "key": "predelay",
+    "name": "PreDelay",
+    "min": 0,
+    "max": 250,
+    "default": 35
+  },
+  {
+    "key": "feedback",
+    "name": "Feedback",
+    "min": 0,
+    "max": 0.94,
+    "default": 0.67
+  },
+  {
+    "key": "damping",
+    "name": "Damping",
+    "min": 0,
+    "max": 1,
+    "default": 0.45
+  },
+  {
+    "key": "highpass",
+    "name": "Highpass",
+    "min": 0,
+    "max": 1,
+    "default": 0.15
+  },
+  {
+    "key": "shimmer",
+    "name": "Shimmer",
+    "min": 0,
+    "max": 1,
+    "default": 0.25
+  },
+  {
+    "key": "grain",
+    "name": "Grain Size",
+    "min": 30,
+    "max": 180,
+    "default": 95
+  },
+  {
+    "key": "grain_fb",
+    "name": "Grain FB",
+    "min": 0,
+    "max": 0.85,
+    "default": 0.2
+  },
+  {
+    "key": "pitch",
+    "name": "Pitch",
+    "min": -12,
+    "max": 12,
+    "default": 12
+  },
+  {
+    "key": "attack",
+    "name": "Attack",
+    "min": 10,
+    "max": 2000,
+    "default": 180
+  },
+  {
+    "key": "modulate",
+    "name": "Modulate",
+    "min": 0,
+    "max": 1,
+    "default": 0.15
+  },
+  {
+    "key": "width",
+    "name": "Width",
+    "min": 0,
+    "max": 1,
+    "default": 0.9
+  },
+  {
+    "key": "organize",
+    "name": "Organize",
+    "min": 0,
+    "max": 1,
+    "default": 0
+  },
+  {
+    "key": "wet",
+    "name": "Wet",
+    "min": 0,
+    "max": 1,
+    "default": 0.35
+  },
+  {
+    "key": "lines",
+    "name": "Lines",
+    "min": 2,
+    "max": 13,
+    "default": 8
+  }
+]
